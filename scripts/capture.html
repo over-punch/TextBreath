@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<!-- README Studio capture harness for textBreath — renders two live paragraphs
+     (phase mode + tide mode) driven by the built dist bundle, so the GIF frames
+     come from the real shipped algorithm rather than a mock. -->
+<html lang="en">
+<head>
+	<meta charset="utf-8" />
+	<style>
+		@font-face {
+			font-family: "Merriweather";
+			src: url("/site/public/fonts/Merriweather.woff2") format("woff2");
+			font-weight: 400;
+			font-display: block;
+		}
+		html, body { margin: 0; padding: 0; background: transparent; }
+		/* Theme echoes the textbreath.com rose hue (oklch ~348). */
+		.card {
+			width: 760px;
+			padding: 44px 52px;
+			box-sizing: border-box;
+			background: oklch(0.12 0.04 348);
+			border-radius: 18px;
+			font-family: "Merriweather", Georgia, serif;
+		}
+		.label {
+			font-family: ui-monospace, "SF Mono", Menlo, monospace;
+			font-size: 13px;
+			letter-spacing: 0.06em;
+			text-transform: uppercase;
+			color: oklch(0.66 0.020 348);
+			margin: 0 0 14px;
+		}
+		.para {
+			font-size: 27px;
+			line-height: 1.7;
+			color: oklch(0.97 0.008 348);
+			margin: 0;
+		}
+		.gap { height: 36px; }
+	</style>
+	<!-- The dist ESM bundle statically imports react/react-jsx-runtime for its
+	     React component + hook. The capture only drives the vanilla core, so we
+	     satisfy those bare specifiers with empty stub modules via an import map. -->
+	<script type="importmap">
+	{
+		"imports": {
+			"react": "data:text/javascript,export default {};export const useRef=()=>{};export const useCallback=(f)=>f;export const useLayoutEffect=()=>{};export const useEffect=()=>{};export const forwardRef=(f)=>f;",
+			"react/jsx-runtime": "data:text/javascript,export const jsx=()=>{};export const jsxs=()=>{};"
+		}
+	}
+	</script>
+</head>
+<body>
+	<div class="card scene" id="hero">
+		<p class="label">mode: phase</p>
+		<p class="para" id="phasePara">Each line of a paragraph breathes on its own timer, oscillating its letter-spacing at a phase offset from its neighbours so the whole block reads as living rather than animated.</p>
+		<div class="gap"></div>
+		<p class="label">mode: tide</p>
+		<p class="para" id="tidePara">Each line of a paragraph breathes on its own timer, oscillating its letter-spacing at a phase offset from its neighbours so the whole block reads as living rather than animated.</p>
+	</div>
+
+	<script type="module">
+		import { applyBreathe, startBreathe, getCleanHTML } from "/dist/index.js"
+
+		// Amplified beyond the 0.012 default so the breathing reads clearly in a
+		// short, downscaled GIF — the README states the recommended subtle default.
+		const COMMON = { amplitude: 0.05, period: 3.5, pauseOffscreen: false }
+
+		function drive(sel, opts) {
+			const el = document.querySelector(sel)
+			const original = getCleanHTML(el)
+			const { lineSpans } = applyBreathe(el, original, opts)
+			startBreathe(lineSpans, opts)
+		}
+
+		await document.fonts.ready
+		drive("#phasePara", { ...COMMON, mode: "phase", phaseOffset: Math.PI / 3 })
+		drive("#tidePara", { ...COMMON, mode: "tide", direction: "down" })
+
+		// Signal readiness once the structure is wrapped and the first frame painted.
+		requestAnimationFrame(() => requestAnimationFrame(() => { window.__ready = true }))
+	</script>
+</body>
+</html>

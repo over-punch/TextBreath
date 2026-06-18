@@ -4,6 +4,10 @@
 
 Each line of a paragraph oscillates its letter-spacing — or variable font axis — at a phase offset from its neighbours. Two modes: `phase` gives each line a fixed ripple at a staggered point in the cycle; `tide` sends a traveling wave through the paragraph from top to bottom. At low amplitudes it reads as living rather than animated.
 
+![Two paragraphs breathing: in phase mode each line oscillates its letter-spacing at a staggered offset; in tide mode a wave travels down the lines](https://raw.githubusercontent.com/Liiift-Studio/TextBreath/main/assets/textbreath-demo.gif?v=1)
+
+<sub>Amplitude exaggerated for the demo — the `0.012` default is far subtler. Generated from the shipped bundle by [`scripts/capture.mjs`](scripts/capture.mjs).</sub>
+
 **[textbreath.com](https://textbreath.com)** · [npm](https://www.npmjs.com/package/@liiift-studio/textbreath) · [GitHub](https://github.com/Liiift-Studio/TextBreath)
 
 TypeScript · Zero dependencies · React + Vanilla JS
@@ -94,7 +98,7 @@ const opts: BreatheOptions = { amplitude: 0.012, period: 3.5, mode: 'tide' }
 
 | Option | Default | Description |
 |--------|---------|-------------|
-| `amplitude` | `0.012` | Peak change per cycle. Em units for `letter-spacing`. For `wdth`, the axis value becomes `100 ± (amplitude × 100)`. For `wght`, it becomes `400 ± (amplitude × 400)` |
+| `amplitude` | `0.012` | Peak change per cycle. Em units for `letter-spacing`. For `wdth`, the axis value becomes `100 ± (amplitude × 100)`. For `wght`, it becomes `400 ± (amplitude × 400)`. As a feel guide: `0.012` is barely perceptible (the "living, not animated" default); `~0.03–0.05` reads as an obvious shimmer; above that the line-width change becomes pronounced — pair with `linePreservation: 'clamp'` |
 | `period` | `3.5` | Seconds per full oscillation cycle |
 | `phaseOffset` | `π/4` ≈ `0.785` | Radians of phase shift between adjacent lines. Used in `'phase'` mode only |
 | `waveShape` | `'sine'` | `'sine'` \| `'triangle'` \| `'sawtooth'` |
@@ -128,11 +132,20 @@ const opts: BreatheOptions = { amplitude: 0.012, period: 3.5, mode: 'tide' }
 
 ## How it works
 
-Each visual line is wrapped in a `<span>`. In `phase` mode, line `i` is assigned a fixed phase of `i × phaseOffset` radians, and the wave is evaluated at that phase each frame. In `tide` mode, each line's phase advances with both time and its index — the same traveling wave used by Flood Text, but applied to letter-spacing or a variable font axis rather than per-character. Both modes run a `requestAnimationFrame` loop at consistent speed regardless of display refresh rate. In React, the loop stops automatically on unmount and is skipped entirely if `prefers-reduced-motion: reduce` is set. In vanilla JS, call the `stop` function returned by `startBreathe` to end the loop.
+Each visual line is wrapped in a `<span>`. In `phase` mode, line `i` is assigned a fixed phase of `i × phaseOffset` radians, and the wave is evaluated at that phase each frame. In `tide` mode, each line's phase advances with both time and its index — the same traveling wave used by Flood Text, but applied to letter-spacing or a variable font axis rather than per-character. Both modes run a `requestAnimationFrame` loop at consistent speed regardless of display refresh rate. The loop is skipped entirely if `prefers-reduced-motion: reduce` is set — `startBreathe` returns a no-op in both the React hook and vanilla JS, so callers get the accessibility guard for free. In React the loop also stops automatically on unmount; in vanilla JS, call the `stop` function returned by `startBreathe` to end it.
 
 **Line break safety:** Line breaks are locked to the browser's natural layout — each `applyBreathe` call starts from the original HTML, detects lines at natural spacing, then locks them with `white-space: nowrap`. Word breaks never change during the animation.
 
 **Width overflow:** Letter-spacing animation causes lines to grow and shrink with the wave. At the default `amplitude: 0.012em` the peak overflow for a 60-character line at 16px is approximately 11px — typically imperceptible. At larger amplitudes, use `linePreservation: 'clamp'` to contain the effect within each line box, or add `overflow-x: hidden` to the element's CSS.
+
+---
+
+## Performance & browser support
+
+- **Size:** ~3.5 kB gzipped, zero runtime dependencies. ESM + CJS dual build, `sideEffects: false`, tree-shakeable. React and `@chenglou/pretext` are optional peer dependencies — pulled in only if you use the hook/component or the canvas line-detection path.
+- **Reflow cost:** animating `letter-spacing` (the default axis) re-runs layout for the line on every frame. For a few short paragraphs this is negligible, but on very long or numerous blocks it is main-thread work. The `wght` / `wdth` variable-font axes mutate `font-variation-settings` instead, which is cheaper, and `pauseOffscreen` (on by default) skips the loop's work while the element is fully scrolled out of the viewport.
+- **Accessibility:** respects `prefers-reduced-motion: reduce` in both React and vanilla; injected line spans are `aria-hidden` and the original text is exposed via `aria-label`, so screen readers read the paragraph normally.
+- **Requirements:** evergreen browsers. Uses `ResizeObserver`, `IntersectionObserver`, `requestAnimationFrame`, and `document.fonts.ready`. Skips animation on e-ink / `(update: slow)` displays. Variable-font axes require a variable font; `letter-spacing` works with any font.
 
 ---
 
@@ -151,7 +164,6 @@ The package itself has zero runtime dependencies. Do not remove this entry.
 - **Multi-axis mode** — animate both `letter-spacing` and a variable font axis simultaneously from a single instance
 - **Scroll-phase mode** — tie the wave phase to scroll position rather than time, so the paragraph breathes as the user reads down the page
 - **Amplitude envelope** — fade amplitude in on mount and out on unmount for a softer entrance and exit
-- **`prefers-reduced-motion` in vanilla JS** — the React hook already pauses the animation when the user has opted out of motion; expose the same guard from `startBreathe` so vanilla JS callers don't need to implement the media query themselves
 
 ---
 
