@@ -5,6 +5,7 @@ import ToolDirectory from "@/components/ToolDirectory"
 import { version } from "../../../package.json"
 import { version as siteVersion } from "../../package.json"
 import SiteFooter from "../components/SiteFooter"
+import PortsSection from "../components/PortsSection"
 import { MagnetChar } from "@liiift-studio/magnettype"
 
 export default function Home() {
@@ -122,6 +123,8 @@ removeBreathe(el, original)
 					</div>
 				</div>
 			</section>
+
+			<PortsSection npm="@liiift-studio/textbreath" bundle="textbreath" attr="data-textbreath" framerComponent="TextBreath" repo="Liiift-Studio/TextBreath" />
 
 			<SiteFooter current="textBreath" npmVersion={version} siteVersion={siteVersion} />
 
