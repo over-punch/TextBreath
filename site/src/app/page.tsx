@@ -124,7 +124,7 @@ removeBreathe(el, original)
 				</div>
 			</section>
 
-			<PortsSection npm="@liiift-studio/textbreath" bundle="textbreath" attr="data-textbreath" framerComponent="TextBreath" repo="Liiift-Studio/TextBreath" />
+			<PortsSection npm="@liiift-studio/textbreath" bundle="textbreath" attr="data-textbreath" figma="frozen" framerComponent="TextBreath" repo="Liiift-Studio/TextBreath" />
 
 			<SiteFooter current="textBreath" npmVersion={version} siteVersion={siteVersion} />
 
