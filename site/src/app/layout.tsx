@@ -1,6 +1,7 @@
 import type { Metadata } from "next"
 import "./globals.css"
 import localFont from "next/font/local"
+import SiteHeader from "../components/SiteHeader"
 
 const inter = localFont({ src: "../../public/fonts/inter-300.woff", variable: "--font-sans", weight: "300" })
 
@@ -28,7 +29,8 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
 	return (
 		<html lang="en" className={`h-full antialiased ${inter.variable}`}>
-			<body className="min-h-full flex flex-col">{children}</body>
+			<body className="min-h-full flex flex-col">
+				<SiteHeader current="textBreath" githubUrl="https://github.com/Liiift-Studio/TextBreath" />{children}</body>
 		</html>
 	)
 }
