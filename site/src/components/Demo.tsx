@@ -2,6 +2,7 @@
 
 // Interactive breathe demo with amplitude, period, phase, wave shape, axis, mode, cursor/gyro/motion controls
 import { useState, useEffect, useRef, useDeferredValue, useMemo, useCallback } from "react"
+import { useMediaQuery, useClientValue } from "@/lib/clientValue"
 import { BreatheText } from "@liiift-studio/textbreath"
 
 const SAMPLE = `Hold still and watch the paragraph. Each line is breathing at its own pace — expanding and contracting its letter-spacing in a slow oscillation, offset from its neighbours by a fixed phase angle. The top lines and the bottom lines never breathe together. A wave moves through the paragraph rather than a pulse. At the default amplitude the movement is almost subliminal: you notice something alive before you notice what it is. Increase the amplitude to see the mechanics. The wave shape changes the character of the motion — sine is smooth, triangle is more mechanical. The period controls how fast each line completes its cycle.`
@@ -135,21 +136,18 @@ export default function Demo() {
 	const lastMouseRef = useRef<{ x: number; y: number } | null>(null)
 
 	// Detected capabilities — resolved client-side after mount
-	const [showCursor, setShowCursor] = useState(false)
-	const [showGyro, setShowGyro] = useState(false)
-	const [showMotion, setShowMotion] = useState(false)
+	const showCursor = useMediaQuery('(hover: hover)')
+	const isTouch = useMediaQuery('(hover: none)')
+	const hasOrientation = useClientValue(() => 'DeviceOrientationEvent' in window, false)
+	const showGyro = isTouch && hasOrientation
+	// Motion mode always available on the client: mouse speed on desktop, DeviceMotionEvent on mobile
+	const showMotion = useClientValue(() => true, false)
 
 	useEffect(() => {
 		document.fonts.ready.then(() => setFontsReady(true))
 	}, [])
 
 	useEffect(() => {
-		const isHover = window.matchMedia('(hover: hover)').matches
-		const isTouch = window.matchMedia('(hover: none)').matches
-		setShowCursor(isHover)
-		setShowGyro(isTouch && 'DeviceOrientationEvent' in window)
-		// Motion mode always available: mouse speed on desktop, DeviceMotionEvent on mobile
-		setShowMotion(true)
 	}, [])
 
 	// Derived amplitude max for current axis — memoised; only recomputed when axis changes
