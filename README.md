@@ -1,14 +1,14 @@
 # Text Breath
 
-[![npm](https://img.shields.io/npm/v/%40liiift-studio%2Ftextbreath.svg)](https://www.npmjs.com/package/@overpunch/textbreath) [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT) [![part of liiift type-tools](https://img.shields.io/badge/liiift-type--tools-blueviolet)](https://github.com/Liiift-Studio/type-tools)
+[![npm](https://img.shields.io/npm/v/%40overpunch%2Ftextbreath.svg)](https://www.npmjs.com/package/@overpunch/textbreath) [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT) [![part of liiift type-tools](https://img.shields.io/badge/liiift-type--tools-blueviolet)](https://github.com/over-punch/type-tools)
 
 Each line of a paragraph oscillates its letter-spacing — or variable font axis — at a phase offset from its neighbours. Two modes: `phase` gives each line a fixed ripple at a staggered point in the cycle; `tide` sends a traveling wave through the paragraph from top to bottom. At low amplitudes it reads as living rather than animated.
 
-![Two paragraphs breathing: in phase mode each line oscillates its letter-spacing at a staggered offset; in tide mode a wave travels down the lines](https://raw.githubusercontent.com/Liiift-Studio/TextBreath/main/assets/textbreath-demo.gif?v=1)
+![Two paragraphs breathing: in phase mode each line oscillates its letter-spacing at a staggered offset; in tide mode a wave travels down the lines](https://raw.githubusercontent.com/over-punch/TextBreath/main/assets/textbreath-demo.gif?v=1)
 
 <sub>Amplitude exaggerated for the demo — the `0.012` default is far subtler. Generated from the shipped bundle by [`scripts/capture.mjs`](scripts/capture.mjs).</sub>
 
-**[textbreath.com](https://textbreath.com)** · [npm](https://www.npmjs.com/package/@overpunch/textbreath) · [GitHub](https://github.com/Liiift-Studio/TextBreath)
+**[textbreath.com](https://textbreath.com)** · [npm](https://www.npmjs.com/package/@overpunch/textbreath) · [GitHub](https://github.com/over-punch/TextBreath)
 
 TypeScript · Zero dependencies · React + Vanilla JS
 
