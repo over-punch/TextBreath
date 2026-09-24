@@ -1,6 +1,6 @@
 # Text Breath
 
-[![npm](https://img.shields.io/npm/v/%40liiift-studio%2Ftextbreath.svg)](https://www.npmjs.com/package/@liiift-studio/textbreath) [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT) [![part of liiift type-tools](https://img.shields.io/badge/liiift-type--tools-blueviolet)](https://github.com/Liiift-Studio/type-tools)
+[![npm](https://img.shields.io/npm/v/%40liiift-studio%2Ftextbreath.svg)](https://www.npmjs.com/package/@overpunch/textbreath) [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT) [![part of liiift type-tools](https://img.shields.io/badge/liiift-type--tools-blueviolet)](https://github.com/Liiift-Studio/type-tools)
 
 Each line of a paragraph oscillates its letter-spacing — or variable font axis — at a phase offset from its neighbours. Two modes: `phase` gives each line a fixed ripple at a staggered point in the cycle; `tide` sends a traveling wave through the paragraph from top to bottom. At low amplitudes it reads as living rather than animated.
 
@@ -8,7 +8,7 @@ Each line of a paragraph oscillates its letter-spacing — or variable font axis
 
 <sub>Amplitude exaggerated for the demo — the `0.012` default is far subtler. Generated from the shipped bundle by [`scripts/capture.mjs`](scripts/capture.mjs).</sub>
 
-**[textbreath.com](https://textbreath.com)** · [npm](https://www.npmjs.com/package/@liiift-studio/textbreath) · [GitHub](https://github.com/Liiift-Studio/TextBreath)
+**[textbreath.com](https://textbreath.com)** · [npm](https://www.npmjs.com/package/@overpunch/textbreath) · [GitHub](https://github.com/Liiift-Studio/TextBreath)
 
 TypeScript · Zero dependencies · React + Vanilla JS
 
@@ -17,7 +17,7 @@ TypeScript · Zero dependencies · React + Vanilla JS
 ## Install
 
 ```bash
-npm install @liiift-studio/textbreath
+npm install @overpunch/textbreath
 ```
 
 ---
@@ -29,7 +29,7 @@ npm install @liiift-studio/textbreath
 ### React component
 
 ```tsx
-import { BreatheText } from '@liiift-studio/textbreath'
+import { BreatheText } from '@overpunch/textbreath'
 
 <BreatheText amplitude={0.012} period={3.5} phaseOffset={0.785} linePreservation="clamp">
   Your paragraph text here...
@@ -41,7 +41,7 @@ import { BreatheText } from '@liiift-studio/textbreath'
 ### React hook
 
 ```tsx
-import { useBreathe } from '@liiift-studio/textbreath'
+import { useBreathe } from '@overpunch/textbreath'
 
 // Inside a React component:
 const ref = useBreathe({ amplitude: 0.012, period: 3.5, phaseOffset: 0.785 })
@@ -55,7 +55,7 @@ The hook starts the animation loop on mount, re-runs line detection on resize vi
 `applyBreathe` wraps lines and returns them. `startBreathe` drives the animation loop and returns a stop function.
 
 ```ts
-import { applyBreathe, startBreathe, removeBreathe, getCleanHTML } from '@liiift-studio/textbreath'
+import { applyBreathe, startBreathe, removeBreathe, getCleanHTML } from '@overpunch/textbreath'
 
 const el = document.querySelector('p')
 const original = getCleanHTML(el)
@@ -87,7 +87,7 @@ removeBreathe(el, original)
 ### TypeScript
 
 ```ts
-import type { BreatheOptions } from '@liiift-studio/textbreath'
+import type { BreatheOptions } from '@overpunch/textbreath'
 
 const opts: BreatheOptions = { amplitude: 0.012, period: 3.5, mode: 'tide' }
 ```
