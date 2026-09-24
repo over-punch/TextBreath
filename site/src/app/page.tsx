@@ -15,7 +15,7 @@ export default function Home() {
 				eyebrow="breathing letter-spacing"
 				title={[{ text: "The paragraph" }, { text: "breathes.", italic: true, subtle: true }]}
 				install="@overpunch/textbreath"
-				github="https://github.com/Liiift-Studio/TextBreath"
+				github="https://github.com/over-punch/TextBreath"
 				tech={["TypeScript", "Zero dependencies", "React + Vanilla JS"]}
 			>
 				<p className="text-base leading-relaxed max-w-lg">
@@ -114,7 +114,7 @@ removeBreathe(el, original)
 				</div>
 			</section>
 
-			<PortsSection npm="@overpunch/textbreath" bundle="textbreath" attr="data-textbreath" figma="frozen" framerComponent="TextBreath" repo="Liiift-Studio/TextBreath" />
+			<PortsSection npm="@overpunch/textbreath" bundle="textbreath" attr="data-textbreath" figma="frozen" framerComponent="TextBreath" repo="over-punch/TextBreath" />
 
 			<SiteFooter current="textBreath" npmVersion={version} siteVersion={siteVersion} />
 

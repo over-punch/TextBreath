@@ -30,7 +30,7 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
 	return (
 		<html lang="en" className={`h-full antialiased ${inter.variable}`}>
 			<body className="min-h-full flex flex-col">
-				<SiteHeader current="textBreath" githubUrl="https://github.com/Liiift-Studio/TextBreath" />{children}</body>
+				<SiteHeader current="textBreath" githubUrl="https://github.com/over-punch/TextBreath" />{children}</body>
 		</html>
 	)
 }
