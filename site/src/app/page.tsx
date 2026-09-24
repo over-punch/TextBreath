@@ -14,7 +14,7 @@ export default function Home() {
 			<Hero
 				eyebrow="breathing letter-spacing"
 				title={[{ text: "The paragraph" }, { text: "breathes.", italic: true, subtle: true }]}
-				install="@liiift-studio/textbreath"
+				install="@overpunch/textbreath"
 				github="https://github.com/Liiift-Studio/TextBreath"
 				tech={["TypeScript", "Zero dependencies", "React + Vanilla JS"]}
 			>
@@ -54,7 +54,7 @@ export default function Home() {
 				<div className="flex flex-col gap-8 text-sm">
 					<div className="flex flex-col gap-3">
 						<p className="text-muted">Drop-in component</p>
-						<CodeBlock code={`import { BreatheText } from '@liiift-studio/textbreath'
+						<CodeBlock code={`import { BreatheText } from '@overpunch/textbreath'
 
 <BreatheText amplitude={0.012} period={3.5} phaseOffset={0.785}>
   Your paragraph text here...
@@ -62,14 +62,14 @@ export default function Home() {
 					</div>
 					<div className="flex flex-col gap-3">
 						<p className="text-muted">Hook</p>
-						<CodeBlock code={`import { useBreathe } from '@liiift-studio/textbreath'
+						<CodeBlock code={`import { useBreathe } from '@overpunch/textbreath'
 
 const ref = useBreathe({ amplitude: 0.012, period: 3.5, phaseOffset: 0.785 })
 <p ref={ref}>{children}</p>`} />
 					</div>
 					<div className="flex flex-col gap-3">
 						<p className="text-muted">Vanilla JS</p>
-						<CodeBlock code={`import { applyBreathe, startBreathe, removeBreathe, getCleanHTML, BREATHE_CLASSES, sawtoothWave, triangleWave } from '@liiift-studio/textbreath'
+						<CodeBlock code={`import { applyBreathe, startBreathe, removeBreathe, getCleanHTML, BREATHE_CLASSES, sawtoothWave, triangleWave } from '@overpunch/textbreath'
 
 const el = document.querySelector('p')
 const original = getCleanHTML(el)
@@ -114,7 +114,7 @@ removeBreathe(el, original)
 				</div>
 			</section>
 
-			<PortsSection npm="@liiift-studio/textbreath" bundle="textbreath" attr="data-textbreath" figma="frozen" framerComponent="TextBreath" repo="Liiift-Studio/TextBreath" />
+			<PortsSection npm="@overpunch/textbreath" bundle="textbreath" attr="data-textbreath" figma="frozen" framerComponent="TextBreath" repo="Liiift-Studio/TextBreath" />
 
 			<SiteFooter current="textBreath" npmVersion={version} siteVersion={siteVersion} />
 
