@@ -630,7 +630,9 @@ export function startBreathe(
 			let wave: number
 			if (mode === 'tide') {
 				const pos = n > 1 ? i / (n - 1) : 0
-				const phase = direction === 'up' ? pos - t * speed : pos + t * speed
+				// The crest sits where pos - t·speed is constant, so subtracting time moves it to higher
+				// line indices (down the paragraph); adding time moves it up.
+				const phase = direction === 'up' ? pos + t * speed : pos - t * speed
 				wave = waveShape === 'triangle' ? triangleWave(phase) : waveShape === 'sawtooth' ? sawtoothWave(phase) : Math.sin(2 * Math.PI * phase)
 			} else {
 				const phase = i * phaseOffset

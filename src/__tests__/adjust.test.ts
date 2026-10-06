@@ -280,6 +280,23 @@ describe('textBreath — extended', () => {
 		stop()
 	})
 
+	it('mode: tide travels down with direction: down and up with direction: up', async () => {
+		// The first line starts at the wave's zero crossing; a crest moving down the paragraph
+		// pulls it below zero first, one moving up pushes it above zero first.
+		const firstLineAfter = async (direction: 'down' | 'up') => {
+			const el = makeElement(nWords(35))
+			const { lineSpans } = applyBreathe(el, getCleanHTML(el), {})
+			expect(lineSpans.length).toBeGreaterThan(2)
+			const stop = startBreathe(lineSpans, { mode: 'tide', direction, period: 4, amplitude: 0.05, pauseOffscreen: false })
+			await new Promise((r) => setTimeout(r, 250))
+			const value = parseFloat(lineSpans[0].style.letterSpacing)
+			stop()
+			return value
+		}
+		expect(await firstLineAfter('down')).toBeLessThan(0)
+		expect(await firstLineAfter('up')).toBeGreaterThan(0)
+	})
+
 	it('linePreservation: clamp sets maxWidth on line spans', () => {
 		const el = makeElement(nWords(14))
 		const original = getCleanHTML(el)
