@@ -109,6 +109,32 @@ function readOptions(el: HTMLElement): BreatheOptions {
  *
  * @param el - Element to animate
  */
+/**
+ * Re-runs an element when its container's width changes, or when the element itself is first shown
+ * (hidden in a tab at init). The element's own later width changes are ignored: the animation
+ * changes them on a shrink-wrapped element, and re-running on those would loop.
+ */
+const widths = new WeakMap<Element, number>()
+const resizeObserver = typeof ResizeObserver !== 'undefined'
+	? new ResizeObserver((entries) => {
+		const rerun = new Set<HTMLElement>()
+		for (const entry of entries) {
+			const target = entry.target as HTMLElement
+			const w = Math.round(entry.contentRect.width)
+			const prev = widths.get(target)
+			widths.set(target, w)
+			if (prev === undefined || prev === w) continue
+			if (TRACKED.has(target)) {
+				// The element itself: only the hidden → shown case.
+				if (prev === 0 && w > 0) rerun.add(target)
+			} else {
+				TRACKED.forEach((el) => { if (el.parentElement === target) rerun.add(el) })
+			}
+		}
+		rerun.forEach((el) => { if (el.isConnected) initElement(el) })
+	})
+	: null
+
 function initElement(el: HTMLElement): void {
 	// Tear down any previous run so re-init doesn't double-wrap or leak a loop.
 	destroy(el)
@@ -119,6 +145,10 @@ function initElement(el: HTMLElement): void {
 	// Empty result means reduced-motion / e-ink / no text — restore is already handled
 	// by the core, but keep tracking so a later resize can retry.
 	TRACKED.add(el)
+	if (resizeObserver && !widths.has(el)) {
+		resizeObserver.observe(el)
+		if (el.parentElement) resizeObserver.observe(el.parentElement)
+	}
 	if (lineSpans.length === 0) {
 		INSTANCES.set(el, { stop: () => {}, originalHTML })
 		return
@@ -139,6 +169,8 @@ function destroy(el: HTMLElement): void {
 	removeBreathe(el, inst.originalHTML)
 	INSTANCES.delete(el)
 	TRACKED.delete(el)
+	resizeObserver?.unobserve(el)
+	widths.delete(el)
 }
 
 /**
@@ -156,8 +188,12 @@ function init(root: ParentNode = document): void {
  * words between lines. initElement restores original HTML first, so this is idempotent.
  */
 function restart(): void {
-	// Snapshot to an array — initElement mutates TRACKED via destroy/add.
-	Array.from(TRACKED).forEach(initElement)
+	// Snapshot to an array — initElement mutates TRACKED via destroy/add. Elements removed from the
+	// page are dropped (their animation has already stopped itself).
+	Array.from(TRACKED).forEach((el) => {
+		if (!el.isConnected) { TRACKED.delete(el); INSTANCES.get(el)?.stop(); INSTANCES.delete(el); return }
+		initElement(el)
+	})
 }
 
 // Re-detect lines on viewport resize — the container's width drives line breaks.
@@ -181,6 +217,21 @@ function autoInit(): void {
 			init()
 		}
 		window.addEventListener('resize', onResize)
+		// Fonts that load later change line breaks.
+		document.fonts?.addEventListener?.('loadingdone', onResize)
+		// Elements added later (CMS lists, interactions) are set up when they appear.
+		if (typeof MutationObserver !== 'undefined' && document.body) {
+			new MutationObserver((records) => {
+				for (const rec of records) {
+					rec.addedNodes.forEach((n) => {
+						if (!(n instanceof HTMLElement) || !n.isConnected) return
+						const found = n.matches(`[${OPT_IN_ATTR}]`) ? [n] : []
+						n.querySelectorAll<HTMLElement>(`[${OPT_IN_ATTR}]`).forEach((el) => found.push(el))
+						for (const el of found) if (!INSTANCES.has(el)) initElement(el)
+					})
+				}
+			}).observe(document.body, { childList: true, subtree: true })
+		}
 	}
 	if (document.readyState === 'loading') {
 		document.addEventListener('DOMContentLoaded', run, { once: true })
