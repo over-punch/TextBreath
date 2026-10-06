@@ -70,13 +70,18 @@ document.fonts.ready.then(() => {
   stop = startBreathe(lineSpans, opts)
 })
 
-// On resize — stop, re-detect lines, restart:
+// On a container resize — stop, re-detect lines, restart. Observe the container, not the element:
+// the animation changes a shrink-wrapped element's own width, which would re-trigger this forever.
+let lastWidth = el.parentElement.clientWidth
 const ro = new ResizeObserver(() => {
+  const w = el.parentElement.clientWidth
+  if (w === lastWidth) return
+  lastWidth = w
   stop()
   const { lineSpans: newSpans } = applyBreathe(el, original, opts)
   stop = startBreathe(newSpans, opts)
 })
-ro.observe(el)
+ro.observe(el.parentElement)
 
 // Later — stop the animation loop and restore the DOM:
 stop()
@@ -98,7 +103,7 @@ const opts: BreatheOptions = { amplitude: 0.012, period: 3.5, mode: 'tide' }
 
 | Option | Default | Description |
 |--------|---------|-------------|
-| `amplitude` | `0.012` | Peak change per cycle. Em units for `letter-spacing`. For `wdth`, the axis value becomes `100 ± (amplitude × 100)`. For `wght`, it becomes `400 ± (amplitude × 400)`. As a feel guide: `0.012` is barely perceptible (the "living, not animated" default); `~0.03–0.05` reads as an obvious shimmer; above that the line-width change becomes pronounced — pair with `linePreservation: 'clamp'` |
+| `amplitude` | `0.012` | Peak change per cycle. Em units for `letter-spacing`, added to the element's own letter-spacing. For `wdth`, the axis oscillates by `± amplitude × 100` around the line's own value (100 if unset); for `wght`, by `± amplitude × 400` around its own weight. Other axes you set are kept. Capped at 0.5. As a feel guide: `0.012` is barely perceptible (the "living, not animated" default); `~0.03–0.05` reads as an obvious shimmer; above that the line-width change becomes pronounced — pair with `linePreservation: 'clamp'` |
 | `period` | `3.5` | Seconds per full oscillation cycle |
 | `phaseOffset` | `π/4` ≈ `0.785` | Radians of phase shift between adjacent lines. Used in `'phase'` mode only |
 | `waveShape` | `'sine'` | `'sine'` \| `'triangle'` \| `'sawtooth'` |
@@ -142,9 +147,11 @@ Each visual line is wrapped in a `<span>`. In `phase` mode, line `i` is assigned
 
 ## Performance & browser support
 
-- **Size:** ~3.5 kB gzipped, zero runtime dependencies. ESM + CJS dual build, `sideEffects: false`, tree-shakeable. React and `@chenglou/pretext` are optional peer dependencies — pulled in only if you use the hook/component or the canvas line-detection path.
+- **Size:** ~5 kB gzipped, zero runtime dependencies. ESM + CJS dual build, `sideEffects: false`, tree-shakeable. React and `@chenglou/pretext` are optional peer dependencies. The main entry also exports the hook and component, so it imports `react`; without React installed, import the vanilla API from `@overpunch/textbreath/core`.
+- **Lines and markup:** each word is wrapped in a plain inline span (spaces stay in the text flow, so the layout is the browser's own) and grouped into locked lines. Lines keep exactly the words the browser put on them (hyphen and `overflow-wrap` breaks, CJK included); justify, `text-indent` and `pre` text are kept. Inline elements, your `<br>`, images and the spaces between elements are kept and the original elements reused, so listeners keep working. A link over two lines becomes one link per line. `getCleanHTML()` returns the original markup. `linePreservation: 'clamp'` clips the widest part of each line's cycle instead of letting it overflow.
+- **One animation loop:** all running elements share a single `requestAnimationFrame` loop, which stops itself when an element leaves the page.
 - **Reflow cost:** animating `letter-spacing` (the default axis) re-runs layout for the line on every frame. For a few short paragraphs this is negligible, but on very long or numerous blocks it is main-thread work. The `wght` / `wdth` variable-font axes mutate `font-variation-settings` instead, which is cheaper, and `pauseOffscreen` (on by default) skips the loop's work while the element is fully scrolled out of the viewport.
-- **Accessibility:** respects `prefers-reduced-motion: reduce` in both React and vanilla; injected line spans are `aria-hidden` and the original text is exposed via `aria-label`, so screen readers read the paragraph normally.
+- **Accessibility:** respects `prefers-reduced-motion: reduce` in both React and vanilla — `applyBreathe` leaves the element untouched, and a running animation stops if the setting turns on. The text stays in the DOM inside the line spans, so screen readers read it as before (injected line breaks are `aria-hidden`); copied text includes a line break at each line end.
 - **Requirements:** evergreen browsers. Uses `ResizeObserver`, `IntersectionObserver`, `requestAnimationFrame`, and `document.fonts.ready`. Skips animation on e-ink / `(update: slow)` displays. Variable-font axes require a variable font; `letter-spacing` works with any font.
 
 ---
