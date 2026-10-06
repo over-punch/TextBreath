@@ -1,6 +1,6 @@
 {
 	"name": "@overpunch/textbreath",
-	"version": "1.0.20",
+	"version": "1.1.0",
 	"description": "Continuous subtle per-line letter-spacing oscillation at offset phases — the paragraph breathes",
 	"type": "module",
 	"main": "dist/index.cjs",
