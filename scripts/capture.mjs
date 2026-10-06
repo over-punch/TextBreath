@@ -3,7 +3,7 @@
 // driven by the built dist bundle), screenshots N frames across one full
 // breathing period, then assembles a looping GIF via ffmpeg with a palette.
 //
-// Run: npm run build && node scripts/capture.mjs
+// Run: npm run build && npm run capture   (PORT=5963 pins the local server port; default is a free port)
 // Deps: playwright (dev), ffmpeg on PATH.
 
 import { createServer } from "node:http"
@@ -14,8 +14,7 @@ import { chromium } from "playwright"
 
 const ROOT = process.cwd()
 const PERIOD_MS = 3500   // matches options.period (3.5s) in capture.html
-const FRAMES = 28        // frames across one period
-const FPS = Math.round(FRAMES / (PERIOD_MS / 1000)) // ~8fps — smooth enough, small
+const FRAMES = 28        // frames across one period (~8 fps if screenshots keep up)
 const SCALE = 1          // capture.html cards are already retina-sized
 
 const MIME = {
@@ -36,7 +35,7 @@ const server = createServer(async (req, res) => {
 	}
 })
 
-await new Promise((r) => server.listen(0, r))
+await new Promise((r) => server.listen(Number(process.env.PORT ?? 0), r))
 const { port } = server.address()
 
 await rm("assets/.frames", { recursive: true, force: true })
@@ -51,12 +50,18 @@ await page.waitForTimeout(300)
 
 const el = await page.$("#hero")
 const interval = PERIOD_MS / FRAMES
+// Shoot each frame at its scheduled time from the start (not "after the previous shot"), and time the
+// whole run, so the GIF can be encoded at the rate the frames were really taken: it plays in real time.
+const t0 = Date.now()
 for (let i = 0; i < FRAMES; i++) {
+	const wait = t0 + i * interval - Date.now()
+	if (wait > 0) await page.waitForTimeout(wait)
 	const n = String(i).padStart(3, "0")
 	await el.screenshot({ path: `assets/.frames/f${n}.png`, omitBackground: true })
-	await page.waitForTimeout(interval)
 }
-console.log("Captured %d frames", FRAMES)
+const spanS = (Date.now() - t0) / 1000
+const captureFps = FRAMES / spanS
+console.log("Captured %d frames over %ss (%s fps)", FRAMES, spanS.toFixed(2), captureFps.toFixed(2))
 
 await browser.close()
 server.close()
@@ -66,8 +71,8 @@ server.close()
 // of the frame is static text). Output ~680px wide keeps the file lean.
 const OUT_W = 680
 const enc = spawnSync("ffmpeg", [
-	"-y", "-i", "assets/.frames/f%03d.png",
-	"-vf", `fps=${FPS},scale=${OUT_W}:-1:flags=lanczos,split[s0][s1];[s0]palettegen=max_colors=64:stats_mode=diff[p];[s1][p]paletteuse=dither=none:diff_mode=rectangle`,
+	"-y", "-framerate", captureFps.toFixed(3), "-i", "assets/.frames/f%03d.png",
+	"-vf", `scale=${OUT_W}:-1:flags=lanczos,split[s0][s1];[s0]palettegen=max_colors=64:stats_mode=diff[p];[s1][p]paletteuse=dither=none:diff_mode=rectangle`,
 	"-loop", "0",
 	"assets/textbreath-demo.gif",
 ], { stdio: "inherit" })

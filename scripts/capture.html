@@ -13,12 +13,12 @@
 			font-display: block;
 		}
 		html, body { margin: 0; padding: 0; background: transparent; }
-		/* Theme echoes the textbreath.com rose hue (oklch ~348). */
+		/* Theme echoes the textbreath.com palette (oklch hue 254, from site/src/app/globals.css). */
 		.card {
 			width: 760px;
 			padding: 44px 52px;
 			box-sizing: border-box;
-			background: oklch(0.12 0.04 348);
+			background: oklch(0.900 0.0422 254);
 			border-radius: 18px;
 			font-family: "Merriweather", Georgia, serif;
 		}
@@ -27,28 +27,17 @@
 			font-size: 13px;
 			letter-spacing: 0.06em;
 			text-transform: uppercase;
-			color: oklch(0.66 0.020 348);
+			color: oklch(0.420 0.0300 254);
 			margin: 0 0 14px;
 		}
 		.para {
 			font-size: 27px;
 			line-height: 1.7;
-			color: oklch(0.97 0.008 348);
+			color: oklch(0.260 0.0550 254);
 			margin: 0;
 		}
 		.gap { height: 36px; }
 	</style>
-	<!-- The dist ESM bundle statically imports react/react-jsx-runtime for its
-	     React component + hook. The capture only drives the vanilla core, so we
-	     satisfy those bare specifiers with empty stub modules via an import map. -->
-	<script type="importmap">
-	{
-		"imports": {
-			"react": "data:text/javascript,export default {};export const useRef=()=>{};export const useCallback=(f)=>f;export const useLayoutEffect=()=>{};export const useEffect=()=>{};export const forwardRef=(f)=>f;",
-			"react/jsx-runtime": "data:text/javascript,export const jsx=()=>{};export const jsxs=()=>{};"
-		}
-	}
-	</script>
 </head>
 <body>
 	<div class="card scene" id="hero">
@@ -60,7 +49,7 @@
 	</div>
 
 	<script type="module">
-		import { applyBreathe, startBreathe, getCleanHTML } from "/dist/index.js"
+		import { applyBreathe, startBreathe, getCleanHTML } from "/dist/core.js"
 
 		// Amplified beyond the 0.012 default so the breathing reads clearly in a
 		// short, downscaled GIF — the README states the recommended subtle default.
