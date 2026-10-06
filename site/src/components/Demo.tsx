@@ -147,9 +147,6 @@ export default function Demo() {
 		document.fonts.ready.then(() => setFontsReady(true))
 	}, [])
 
-	useEffect(() => {
-	}, [])
-
 	// Derived amplitude max for current axis — memoised; only recomputed when axis changes
 	const { isLetterSpacing, amplitudeLabel, amplitudeMax, amplitudeStep } = useMemo(() => {
 		const ls = axis === 'letter-spacing'
@@ -446,7 +443,7 @@ export default function Demo() {
 					? cursorMode
 						? 'Move cursor to adjust period and amplitude. Press Esc to exit.'
 						: motionMode
-							? 'Head motion drives the breath — moving faster speeds up the oscillation, stillness slows it.'
+							? 'Your movement drives the breath — moving faster speeds up the oscillation, stillness slows it.'
 							: 'Tilt left/right for period, front/back for amplitude.'
 					: mode === 'phase'
 						? `Each line oscillates at ±${effectiveAmplitude.toFixed(3)} ${isLetterSpacing ? 'em' : axis + ' units'}, period ${effectivePeriod}s, phase offset ${(phaseOffset / Math.PI).toFixed(2)}π per line.`
