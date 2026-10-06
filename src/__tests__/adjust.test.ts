@@ -311,3 +311,53 @@ describe('sawtoothWave', () => {
 		}
 	})
 })
+
+// ─── Review fixes (2026-10) ──────────────────────────────────────────────────
+
+describe('review fixes', () => {
+	let cleanup: (() => void) | null = null
+	beforeEach(() => { document.body.innerHTML = ''; cleanup = mockMeasurement() })
+	afterEach(() => { cleanup?.(); cleanup = null })
+
+	it('keeps the text readable in the DOM (no aria-hidden lines, no aria-label) and the markup intact', () => {
+		const html = '<em>alpha</em> <strong>beta</strong> gamma <a href="#x" id="L">delta</a> epsilon.'
+		const el = makeElement(html)
+		const text = el.textContent
+		applyBreathe(el, html, {})
+		expect(el.textContent).toBe(text)
+		expect(el.hasAttribute('aria-label')).toBe(false)
+		expect(el.querySelectorAll(`.${BREATHE_CLASSES.line}[aria-hidden]`).length).toBe(0)
+		expect(el.querySelectorAll('#L').length).toBe(1)
+		expect(getCleanHTML(el)).toBe(html)
+	})
+
+	it('keeps the original elements, so their listeners survive a re-run', () => {
+		const html = 'Please read <a href="#">our terms</a> carefully now.'
+		const el = makeElement(html)
+		const link = el.querySelector('a')!
+		let clicks = 0
+		link.addEventListener('click', (e) => { e.preventDefault(); clicks++ })
+		applyBreathe(el, html, {})
+		applyBreathe(el, html, {})
+		el.querySelector('a')!.click()
+		expect(clicks).toBe(1)
+		removeBreathe(el)
+		expect(el.querySelector('a')).toBe(link)
+	})
+
+	it('stop() puts each line back at its own spacing', () => {
+		const el = makeElement(nWords(14))
+		const { lineSpans } = applyBreathe(el, el.innerHTML, {})
+		const stop = startBreathe(lineSpans, {})
+		stop()
+		lineSpans.forEach((span) => expect(span.style.letterSpacing).toBe(''))
+	})
+
+	it('a second start on the same lines stops the first', () => {
+		const el = makeElement(nWords(14))
+		const { lineSpans } = applyBreathe(el, el.innerHTML, {})
+		const stop1 = startBreathe(lineSpans, {})
+		const stop2 = startBreathe(lineSpans, {})
+		expect(() => { stop1(); stop2() }).not.toThrow()
+	})
+})
